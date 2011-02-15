@@ -38,6 +38,9 @@ class HotQueue(object):
     :param kwargs: additional kwargs to pass to :class:`Redis`, most commonly
         :attr:`host`, :attr:`port`, :attr:`db`
     """
+
+    redis_block_pop_method = 'blpop'
+    redis_pop_method = 'lpop'
     
     def __init__(self, name, serializer=None, **kwargs):
         self.name = name
@@ -51,8 +54,8 @@ class HotQueue(object):
         return self.__redis.llen(self.key)
     
     def __repr__(self):
-        return ('<HotQueue: \'%s\', host=\'%s\', port=%d, db=%d>' %
-            (self.name, self.__redis.host, self.__redis.port, self.__redis.db))
+        return ('<%s: \'%s\', host=\'%s\', port=%d, db=%d>' %
+            (self.__class__.__name__, self.name, self.__redis.host, self.__redis.port, self.__redis.db))
     
     @property
     def key(self):
@@ -101,11 +104,11 @@ class HotQueue(object):
         if block:
             if timeout is None:
                 timeout = 0
-            msg = self.__redis.blpop(self.key, timeout=timeout)
+            msg = getattr(self.__redis, self.redis_block_pop_method)(self.key, timeout=timeout)
             if msg is not None:
                 msg = msg[1]
         else:
-            msg = self.__redis.lpop(self.key)
+            msg = getattr(self.__redis, self.redis_pop_method)(self.key)
         if msg is not None:
             msg = self.serializer.loads(msg)
         return msg
@@ -152,3 +155,12 @@ class HotQueue(object):
             return decorator(*args)
         return decorator
 
+
+class HotStack(HotQueue):
+    
+    """Simple LIFO message queue stored in a Redis list.
+    """
+    
+    redis_block_pop_method = 'brpop'
+    redis_pop_method = 'rpop'
+    
