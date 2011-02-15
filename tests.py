@@ -62,7 +62,7 @@ class HotQueueTestCase(unittest.TestCase):
         # Ensure that the properties of the instance are as expected:
         self.assertEqual(self.queue.name, kwargs['name'])
         self.assertEqual(self.queue.key, "hotqueue:%s" % kwargs['name'])
-        self.assertIs(self.queue.serializer, pickle) # Defaults to cPickle or
+        self.assertTrue(self.queue.serializer is pickle) # Defaults to cPickle or
                                                      # pickle, depending on the
                                                      # platform.
     
