@@ -14,7 +14,7 @@ try:
 except ImportError:
     import pickle
 
-from hotqueue import HotQueue
+from hotqueue import HotQueue, HotStack
 
 
 class DummySerializer(object):
@@ -153,6 +153,25 @@ class HotQueueTestCase(unittest.TestCase):
         msg = self.queue.get()
         self.assertEqual(msg, phrase)
 
+class HotStackTestCase(unittest.TestCase):
+    
+    def setUp(self):
+        """Create the queue instance before the test."""
+        self.stack = HotStack('testqueue')
+    
+    def tearDown(self):
+        """Clear the queue after the test."""
+        self.stack.clear()
+    
+    def test_consume(self):
+        """Make sure we're accessing the elements in LIFO/FILO order"""
+        nums = [1, 2, 3, 4, 5]
+        self.stack.put(*nums)
+        msgs = []
+        for msg in self.stack.consume(timeout=1):
+            msgs.append(msg)
+        nums.reverse()
+        self.assertEquals(msgs, nums)
 
 if __name__ == "__main__":
     unittest.main()

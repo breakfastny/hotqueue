@@ -13,7 +13,7 @@ except ImportError:
 from redis import Redis
 
 
-__all__ = ['HotQueue']
+__all__ = ['HotQueue', 'HotStack']
 
 __version__ = '0.2.3'
 
