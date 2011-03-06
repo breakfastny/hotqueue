@@ -123,6 +123,12 @@ class HotQueue(object):
             msg = self.serializer.dumps(msg)
             self.__redis.rpush(self.key, msg)
     
+    def put_head(self, *msgs):
+        """Put one or more message onto the front of the queue"""
+        for msg in msgs:
+            msg = self.serializer.dumps(msg)
+            self.__redis.lpush(self.key, msg)
+    
     def worker(self, *args, **kwargs):
         """Decorator for using a function as a queue worker. Example:
     
